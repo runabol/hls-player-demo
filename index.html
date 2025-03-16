@@ -26,7 +26,7 @@
         </button>
       </div>
 
-      <video id="video" controls class="w-full rounded-md"></video>
+      <video id="video" controls muted class="w-full rounded-md"></video>
     </div>
 
     <script>
@@ -45,25 +45,26 @@
           hls.loadSource(url);
           hls.attachMedia(video);
           hls.on(Hls.Events.MANIFEST_PARSED, function () {
-            video.play();
+            video.play().catch((error) => {
+              console.log("Autoplay prevented:", error);
+            });
           });
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
           video.src = url;
           video.addEventListener("loadedmetadata", function () {
-            video.play();
+            video.play().catch((error) => {
+              console.log("Autoplay prevented:", error);
+            });
           });
         }
-        // Update the input field with the current URL
         hlsUrlInput.value = url;
       }
 
-      // Function to get query parameters
       function getQueryParam(param) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(param);
       }
 
-      // Check for src query parameter on page load
       window.addEventListener("DOMContentLoaded", function () {
         const srcParam = getQueryParam("src");
         if (srcParam) {
@@ -75,7 +76,6 @@
         const url = hlsUrlInput.value.trim();
         if (url) {
           loadStream(url);
-          // Update URL with query parameter
           window.history.pushState(
             {},
             document.title,
@@ -84,13 +84,11 @@
         }
       });
 
-      // Optional: Allow Enter key to load stream
       hlsUrlInput.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
           const url = hlsUrlInput.value.trim();
           if (url) {
             loadStream(url);
-            // Update URL with query parameter
             window.history.pushState(
               {},
               document.title,
